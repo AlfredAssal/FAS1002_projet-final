@@ -28,7 +28,7 @@ bibliography: references.bib
 ## Un peu d'interactivité pour le plaisir!
 
 ```{r}
-
+library(tidyverse)
 datCO2 <- read.csv("data/raw/CO2_2022-12-06_.csv")
 
 
@@ -36,7 +36,8 @@ datCO2 <- read.csv("data/raw/CO2_2022-12-06_.csv")
 
 ```{r}
 
-head(table(datCO2$country))
+#verification du nombre du nombre de donnée par pays, dans la base de donnée.
+unique(datCO2$country)
 
 
 ```
