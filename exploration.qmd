@@ -29,7 +29,8 @@ bibliography: references.bib
 
 ```{r}
 library(tidyverse)
-datCO2 <- read.csv("data/raw/CO2_2022-12-06_.csv")
+library(countrycode)
+dat_en <- read.csv("data/raw/energie_2022-12-06_.csv")
 
 
 ```
@@ -37,8 +38,20 @@ datCO2 <- read.csv("data/raw/CO2_2022-12-06_.csv")
 ```{r}
 
 #verification du nombre du nombre de donnée par pays, dans la base de donnée.
-unique(datCO2$country)
+unique(dat_en$country)
 
+dat_en$continent <- countrycode(sourcevar = dat_en[, "iso_code"],
+                            origin = "iso3c",
+                            destination = "continent")
+
+dat_en$continent <- ifelse(dat_en$iso_code=='ATA',"Antartica" ,dat_en$continent)
+dat_en$continent <- ifelse(dat_en$iso_code=='ANT',"Americas" ,dat_en$continent)
+
+dat_en$continent <- ifelse(dat_en$country=='Asia',"Asia" ,dat_en$continent)
+dat_en$continent <- ifelse(str_detect(dat_en$country,"Africa"),"Africa" ,dat_en$continent)
+dat_en$continent <- ifelse(dat_en$country=='Europe',"Europe" ,dat_en$continent)
+
+table(dat_en$continent, useNA = "always")
 
 ```
 
