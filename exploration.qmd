@@ -21,7 +21,6 @@ editor_options:
   chunk_output_type: inline
 ---
 
-
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 library(tidyverse)
 library(countrycode)
@@ -188,9 +187,6 @@ write.csv(tab3,"data\\tab3.csv")
 
 ```
 
-
-
-
 # Visualisation
 
 ## Graphique 1
@@ -229,8 +225,6 @@ fig
 
 ```
 
-
-
 ## Graphique 2
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -245,7 +239,6 @@ ggplot(data=dat,aes(x=quinqua, y = Life.expectancy, fill = quinqua))+
     scale_x_continuous(breaks=seq(1800, 2100, 50))
 
 ```
-
 
 # Analyse
 
@@ -315,8 +308,6 @@ ggplot(data=dat,
     
 ```
 
-
-
 ## Analyse 2
 
 Dans cette deuxième analyse, je trouvais intéressant de voir comment les importations d'énergie pouvaient affecter la quantité de gaz è effet de serre. La méthode utiliser pour voir cet effet statistique est en utilisant un modèle de régression multiple, tout comme dans la première analyse. Seulement, cette fois-ci, je contrôle pour une seule variable, la demande d'électricité. J'ai choisi de prendre uniquement la demande d'électricité comme variable de contrôle.
@@ -367,7 +358,6 @@ ggplot(data=dat,
 
 ```
 
-
 ```{r message=FALSE, warning=FALSE, include=FALSE, include=FALSE}
 dat %>% 
     ggplot(aes(renewables_share_energy))+
@@ -387,3 +377,9 @@ csvFileName2finale <- paste("data/processed/cbin_dat.csv",sep = "")
 write.csv(dat,csvFileName2finale) 
 
 ```
+
+::: callout-note
+Les librairies utilisé ici sont [@tidyvers2022], [@arel-bundock_countrycode_2022],[@conway_gsheet_2022], [@noauthor_cranpsych_2022], [@lubridat2022],[@noauthor_simple_2022], [@cran/rgd2022], [@kunst_highcharter_2022] et [@arnold_jrnoldggthemes_2022]
+
+De plus, les données proviennes de @owidenergy et de @noauthor_systema_2022
+:::

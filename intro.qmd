@@ -1,5 +1,5 @@
 ---
-title: "Titre de votre page d'introduction"
+title: "Introduction"
 title-block-banner: true
 description: | 
   Petite description de votre projet en une ligne.
@@ -35,4 +35,4 @@ N'oubliez pas d'inclure vos références sur chacune des pages!
 
 Par exemple:
 
-> Les données proviennent entre autres de @owidenergy.
+> Les données proviennent entre autres de @owidenergy et 
