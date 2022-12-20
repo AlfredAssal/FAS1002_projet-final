@@ -38,6 +38,7 @@ library(sf)
 library(leafdown)
 library(rgdal)
 library(highcharter)
+library(ggthemes)
 
 ```
 
@@ -243,7 +244,11 @@ ggplot(data=dat,
                 ymin = lwr,
                 ymax = upr
               ),
-              alpha=.2)
+              alpha=.2)+
+    theme_hc()+
+    labs(title = "Effet de la production de pétrole sur le PIB",
+         x="Production de pétrole",
+         y="PIB par milliard")
     
 ```
 
@@ -295,7 +300,11 @@ ggplot(data=dat,
                 ymin = lwr,
                 ymax = upr
               ),
-              alpha=.2)
+              alpha=.2)+
+    theme_hc()+
+    labs(title = "Effet de l'import d'électricié sur les gaz à effets de serres",
+         x="Importation net d'électricité en terawattheure",
+         y="Émission de CO2 par million de tonnes")
 
 ```
 Dans cette deuxième analyse, je trouvais intéressant de voir comment les importations d’énergie pouvaient affecter la quantité de gaz è effet de serre. La méthode utiliser pour voir cet effet statistique est en utilisant un modèle de régression multiple, tout comme dans la première analyse. Seulement, cette fois-ci, je contrôle pour une seule variable, la demande d’électricité. J’ai choisi de prendre uniquement la demande d’électricité comme variable de contrôle. 
@@ -304,150 +313,34 @@ Dans le ce modèle, il est possible de voir que l’import d’électricité a u
 
 Enfin, tout comme le dernier modèle, ce modèle n’est qu’une corrélation statistique. Il est impossible de discuter de causalité dans un cas comme celui-ci. Il y a énormément de variables omises et probablement des erreurs de mesure. Par exemple, je ne suis pas certain que les coûts environnementaux des transports soient comptabilisés dans les données. Aussi, il manque des variables comme le degré d’ouverture au commerce de certains pays, les droits de douane, etc. 
 
-```{r map}
+# Graphiques 
 
-pal <- colorNumeric(
-  palette = "YlGnBu",
-  domain = dat$oil_production
-)
+#Graphique 1
+```{r}
 
-leaflet(dat) %>% 
-    addTiles()+
-    fillColor = ~pal(oil_production)
+ggplot(data=dat,aes(x=quinqua, y = Life.expectancy, fill = quinqua))+
+    geom_bar(stat = "summary", na.rm=TRUE)+
+    theme_hc()+
+    labs(y="espérance de vie",
+         x="quinquagénaire",
+         title = "L'espérence de vie dans le temps")+
+    theme(legend.position="none")+
+    scale_x_continuous(breaks=seq(1800, 2100, 50))
 
-
-    leaflet(dat) %>%
-  addPolygons(stroke = FALSE, smoothFactor = 0.2, fillOpacity = 1)
-
-binpal <- colorBin("Blues", dat$population, 6, pretty = FALSE)
-
-pal <- colorBin("YlOrRd", domain = dat$oil_production)
-
-
-
-
-my_map <- leaflet(dat) %>% 
-    addTiles()
-
-
-
-dat_2021 <- dat %>% 
-    subset(year==2021)
-
-leaflet() %>% 
-    addTiles()
-    
-
-
-
-map <- my_leafdown$draw_leafdown(
-  fillColor = ~ colorNumeric("Greens", oil_production)(oil_production)
-) 
-
-
-
-
-colnames(dat_2021)[1] <- "iso-a3"
-str_to_upper(dat_2021$`iso-a3`)
-
-
-hcmap(
-  map = "custom/world-highres3", # high resolution world map
-  data = dat_2021, # name of dataset
-  joinBy = "iso-a3",
-  value = "oil_production",
-  showInLegend = FALSE, # hide legend
-  nullColor = "#DADADA",
-  download_map_data = TRUE
-) %>%
-  hc_mapNavigation(enabled = T) %>%
-  hc_legend("none") %>%
-  hc_title(text = "World map") # title
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-leaflet(data = dat_2021) %>%
-  addProviderTiles("CartoDB.Positron") %>%
-  addPolygons(
-              fillColor = ~pal(population), 
-              fillOpacity = 0.8, 
-              color = "#BDBDC3", 
-              weight = 1)
-
-pal <- colorQuantile("YlGn", NULL, n = 5)
-
-dat_2021 <- st_as_sf(dat_2021, wkt = "country") 
-
- dat_2021 %>%
-      leaflet() %>%
-      addTiles() %>%
-      setView( lat=10, lng=0 , zoom=2) %>% #sets default map pan
-      addPolygons(
-                  data = dat_2021,
-                  fillColor = ~pal(oil_production), 
-                  stroke=TRUE, 
-                  fillOpacity = 0.9, 
-                  color="white", 
-                  weight=0.7,
-                  label = mytext,
-                  labelOptions = label,
-                  highlightOptions = highlight,
-                  group = "World Happiness Index")
- 
- leaflet(dat_2021) %>%
-  addTiles() %>%
-  addPolylines(stroke = FALSE, smoothFactor = 0.3, fillOpacity = 1,
-               fillColor = factor('oil_production'))
-
-
-leaflet() %>%
-    setView(lng=150,
-            lat=-30,
-            zoom = 3) %>%
-    addTiles() %>%
-    addMarkers(lng=174.768,
-               lat=-36.852,
-               popup="Là où R est né") %>%
-    addProviderTiles(providers$Esri.WorldGrayCanvas)
 ```
 
-## Peut-être que ça vous inspirera!
-
+## Graphique 2 
 ```{r plotly, message=FALSE, warning=FALSE}
 
 library(plotly)
 library(gapminder)
 df <- gapminder
 
-fig <- df %>%
+fig <- dat %>%
   plot_ly(
-    x = ~ gdpPercap,
-    y = ~ lifeExp,
-    size = ~ pop,
+    x = ~ gdp,
+    y = ~ oil_production,
+    size = ~ population,
     color = ~ continent,
     frame = ~ year,
     text = ~ country,
@@ -455,18 +348,20 @@ fig <- df %>%
     type = 'scatter',
     mode = 'markers',
     width = "100%",
-    height = 600
-  )
+    height = 600 
+    )
 
-fig <- fig %>% layout(xaxis = list(type = "log"))
+fig <- fig %>% layout(xaxis = list(type = "log", title ="PIB" ),
+                      yaxis = list(title = "Production de pétrole"),
+                      title = list(text="Production de pétrole selon le PIB par année et par taille de population"))
 
 fig <- fig %>%
   animation_button(
     x = 0, xanchor = "left", y = -0.15, yanchor = "bottom"
   )
 fig
+
+
+
 ```
 
-------------------------------------------------------------------------
-
-À votre imagination de jouer!
