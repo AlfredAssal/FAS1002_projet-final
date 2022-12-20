@@ -1,8 +1,8 @@
 ---
-title: "Titre de votre page d'exploration"
+title: "visualisation rapide des données"
 title-block-banner: false
 description: | 
-  Petite description de cette page.
+  Page principale de visualisation 
 # à changer
 date: "2022-12-21"
 # Modifier les détails que vous voulez
@@ -40,11 +40,12 @@ library(rgdal)
 library(highcharter)
 library(ggthemes)
 
+
 ```
 
 # Téléchargement des données
 
-```{r}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 
 # Téléchargement de énergie
 currentDate <- Sys.Date()
@@ -65,20 +66,18 @@ write.csv(dat_gap,csvFileName2)
 
 # Données
 
-```{r}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 
 #Données sur l'energie
 thedate <- Sys.Date()
 thefileEN <- paste0("data/raw/energie",thedate,".csv")
 dat_energie <- read.csv(thefileEN)
 
-
-
 ```
 
 # Nettoyages des données
 
-```{r}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 
 
 # Combinaisons des deux bases de données
@@ -173,7 +172,7 @@ dat_growth <- dat %>%
 
 tab3 <- describe(dat_growth, fast = T)
 
-df <- data.frame(grpBy=dat$continent, dat$gdp, dat$electricity_demand, dat$electricity_generation, dat$gas_prod_change_pct, dat$Life.expectancy) %>% split(.$grpBy) %>% map(summary)
+df1 <- data.frame(grpBy=dat$continent, dat$gdp, dat$electricity_demand, dat$electricity_generation, dat$gas_prod_change_pct, dat$Life.expectancy) %>% split(.$grpBy) %>% map(summary)
 
 
 ```
@@ -183,24 +182,25 @@ df <- data.frame(grpBy=dat$continent, dat$gdp, dat$electricity_demand, dat$elect
 ```{r}
 
 # Consommation d'énergie par capita, regroupé par continent au 21e siècle.
-tab1
+write.csv(tab1,"data\\tab1.csv")
 
 # Statistiques descriptive sur la durée de vie par quinquagénaire
-tab2
+write.csv(tab2,"data\\tab2.csv")
 
 # Statistiques intertemporelles sur la production des énergies les plus importante
 
-tab3 
+write.csv(tab3,"data\\tab3.csv")
 
 # Statistiques descriptives par continant
-df
+df1
+
 ```
 
 # Analyse
 
 ## Analyse 1
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 model1 <- lm(data = dat, gdp ~ oil_production + gas_production + coal_production + nuclear_electricity + hydro_electricity+other_renewable_electricity+solar_electricity+wind_electricity)
 
@@ -254,19 +254,19 @@ ggplot(data=dat,
 
 Dans ma première analyse, je voulais voir l'effet statistique de la production de pétrole sur le PIB. L'hypothèse était bien sûr que le la production de pétrole affecte énormément le PIB. Dans le modèle de régression ci-dessous j'ai utilisé un modèle de régression multiple avec comme régresseur principal la production de pétrole. J'ai ensuite contrôlé pour toutes les autres variables de production d'énergie. Le choix des variables de contrôle vient principalement du fait que je ne voulais pas surestimer l'effet de la production de pétrole en faisant passer l'effet des variables omises dans l'effet de la production de pétrole.
 
-Comme il est possible de le voir dans le modèle de régression, une augmentation de la production de pétrole d'un térawatt cause une augmentation statistique du PIB de 106 878 253 323. Bien sûr, ce chiffre est à prendre à la légère, j\'expliquerai plus tard les biais potentiels. Ensuite, le R^2^ de 0.9393 signifie que 93% de la proportion du PIB est expliqué par le modèle de régression. De plus, les valeurs sont toutes significatives au seuil de 2% d\'intervalle de confiance.
+Comme il est possible de le voir dans le modèle de régression, une augmentation de la production de pétrole d'un térawatt cause une augmentation statistique du PIB de 106 878 253 323. Bien sûr, ce chiffre est à prendre à la légère, j'expliquerai plus tard les biais potentiels. Ensuite, le R^2^ de 0.9393 signifie que 93% de la proportion du PIB est expliqué par le modèle de régression. De plus, les valeurs sont toutes significatives au seuil de 2% d'intervalle de confiance.
 
-Comme mentionné plus haut, il y a plusieurs biais potentiels dans ce modèle, j\'en citerais seulement quelques-uns, puisque la liste peut être longue. Le premier type de biais est le biais par variables omises. Pour essayer d\'expliquer l\'effet de la production de pétrole sur le PIB, il me faudrait plusieurs autres variables, par exemple une variable sur la démocratie pourrait être utile dans le modèle. Aussi, j\'utilise des données en panel entre les années 1800 et 2050, ainsi pour avoir un modèle plus précis, une bonne idée serait de contrôler pour les effets fixes. De cette façon, j\'atténue l\'effet du biais temporel.
+Comme mentionné plus haut, il y a plusieurs biais potentiels dans ce modèle, j'en citerais seulement quelques-uns, puisque la liste peut être longue. Le premier type de biais est le biais par variables omises. Pour essayer d'expliquer l'effet de la production de pétrole sur le PIB, il me faudrait plusieurs autres variables, par exemple une variable sur la démocratie pourrait être utile dans le modèle. Aussi, j'utilise des données en panel entre les années 1800 et 2050, ainsi pour avoir un modèle plus précis, une bonne idée serait de contrôler pour les effets fixes. De cette façon, j'atténue l'effet du biais temporel.
 
 Étonnamment, l'énergie solaire et l'énergie éolienne affectent beaucoup plus le PIB que je pensais. Cependant, je pense qu'il y a aussi un léger biais dans ce cas, puisque les pays ayant le plus d'installation éoliens sont des pays occidentaux principalement développés. Alors, puisque le modèle voit seulement l'effet sur les pays plus riches, il sur estime l'effet éolien et l'effet solaire.
 
-Enfin, ce modèle est seulement une corrélation, il n\'est d\'en aucun cas un modèle causal, il est seulement statistiquement significatif. Il n\'est pas possible de dire avec un modèle aussi simple qu\'une augmentation de la production de pétrole d\'un térawatt cause une augmentation du PIB de 106 878 253 323\$.
+Enfin, ce modèle est seulement une corrélation, il n'est d'en aucun cas un modèle causal, il est seulement statistiquement significatif. Il n'est pas possible de dire avec un modèle aussi simple qu'une augmentation de la production de pétrole d'un térawatt cause une augmentation du PIB de 106 878 253 323\$.
 
 Bien sûr, en réalité la production de pétrole affecte positivement le PIB et la tendance du modèle est probablement juste, cependant il n'est rien possible de dire d'autre.
 
-## Analyse 2 
+## Analyse 2
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 model2 <- lm(greenhouse_gas_emissions ~ net_elec_imports + electricity_demand,data=dat)
 
@@ -307,16 +307,18 @@ ggplot(data=dat,
          y="Émission de CO2 par million de tonnes")
 
 ```
-Dans cette deuxième analyse, je trouvais intéressant de voir comment les importations d’énergie pouvaient affecter la quantité de gaz è effet de serre. La méthode utiliser pour voir cet effet statistique est en utilisant un modèle de régression multiple, tout comme dans la première analyse. Seulement, cette fois-ci, je contrôle pour une seule variable, la demande d’électricité. J’ai choisi de prendre uniquement la demande d’électricité comme variable de contrôle. 
 
-Dans le ce modèle, il est possible de voir que l’import d’électricité a une corrélation négative avec les gaz à effet de serre. Autrement dit, lorsque les imports augmentent, les gaz à effet de serre diminuent, ce qui est légèrement contre-intuitif. Pour être plus précis, le modèle précise qu’une augmentation d’un térawattheure d’import net fera diminuer 0.36 million de tonnes de CO2. Dans ce cas, le R2 est de 0.964, ainsi la proportion de la variation des gaz à effet de serre expliqué par la variation du modèle est de 96%. De plus, les valeurs p nous indiquent que toutes les variables sont statistiquement significatives. 
+Dans cette deuxième analyse, je trouvais intéressant de voir comment les importations d'énergie pouvaient affecter la quantité de gaz è effet de serre. La méthode utiliser pour voir cet effet statistique est en utilisant un modèle de régression multiple, tout comme dans la première analyse. Seulement, cette fois-ci, je contrôle pour une seule variable, la demande d'électricité. J'ai choisi de prendre uniquement la demande d'électricité comme variable de contrôle.
 
-Enfin, tout comme le dernier modèle, ce modèle n’est qu’une corrélation statistique. Il est impossible de discuter de causalité dans un cas comme celui-ci. Il y a énormément de variables omises et probablement des erreurs de mesure. Par exemple, je ne suis pas certain que les coûts environnementaux des transports soient comptabilisés dans les données. Aussi, il manque des variables comme le degré d’ouverture au commerce de certains pays, les droits de douane, etc. 
+Dans le ce modèle, il est possible de voir que l'import d'électricité a une corrélation négative avec les gaz à effet de serre. Autrement dit, lorsque les imports augmentent, les gaz à effet de serre diminuent, ce qui est légèrement contre-intuitif. Pour être plus précis, le modèle précise qu'une augmentation d'un térawattheure d'import net fera diminuer 0.36 million de tonnes de CO2. Dans ce cas, le R2 est de 0.964, ainsi la proportion de la variation des gaz à effet de serre expliqué par la variation du modèle est de 96%. De plus, les valeurs p nous indiquent que toutes les variables sont statistiquement significatives.
 
-# Graphiques 
+Enfin, tout comme le dernier modèle, ce modèle n'est qu'une corrélation statistique. Il est impossible de discuter de causalité dans un cas comme celui-ci. Il y a énormément de variables omises et probablement des erreurs de mesure. Par exemple, je ne suis pas certain que les coûts environnementaux des transports soient comptabilisés dans les données. Aussi, il manque des variables comme le degré d'ouverture au commerce de certains pays, les droits de douane, etc.
+
+# Graphiques
 
 #Graphique 1
-```{r}
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 ggplot(data=dat,aes(x=quinqua, y = Life.expectancy, fill = quinqua))+
     geom_bar(stat = "summary", na.rm=TRUE)+
@@ -329,8 +331,9 @@ ggplot(data=dat,aes(x=quinqua, y = Life.expectancy, fill = quinqua))+
 
 ```
 
-## Graphique 2 
-```{r plotly, message=FALSE, warning=FALSE}
+## Graphique 2
+
+```{r plotly, echo=FALSE, message=FALSE, warning=FALSE}
 
 library(plotly)
 library(gapminder)
@@ -362,6 +365,12 @@ fig <- fig %>%
 fig
 
 
+```
+```{r}
+csvFileName2finale <- paste("data/processed/cbin_dat",currentDate,".csv",sep = "")
+
+write.csv(dat,csvFileName2finale) 
 
 ```
+
 

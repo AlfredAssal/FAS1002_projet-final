@@ -1,0 +1,14 @@
+{
+  "hash": "bd56cdb99c9f169f297e8fd2f9c07a69",
+  "result": {
+    "markdown": "---\ntitle: \"Statistiques descriptives\"\n---\n\n\n## **Vous trouverez ici une page complète de statistiques descriptive pour les données d'énergie et de d'espérance de vie.**\n\n# Statistiques descriptives\n\n\n\n\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
