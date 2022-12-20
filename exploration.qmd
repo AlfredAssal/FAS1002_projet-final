@@ -30,6 +30,7 @@ library(tidyverse)
 library(countrycode)
 library(gsheet)
 library(psych)
+library(lubridate)
 
 ```
 
@@ -54,7 +55,7 @@ write.csv(dat_gap,csvFileName2)
 
 ```
 
-# Données 
+# Données
 
 ```{r}
 
@@ -113,9 +114,11 @@ dat$continentCat <- ifelse(dat$continent == "Europe", 5, dat$continentCat)
 
 dat$continentCat <- ifelse(dat$continent == "Oceania", 6, dat$continentCat)
 
+# Création du premier tableau de statistiques descriptive
 dat_production <- dat %>%
     subset(year>=2000,select = c(country,
                                  continent,
+                                 energy_per_capita,
                                  coal_production,
                                  gas_production,
                                  oil_production,
@@ -124,17 +127,50 @@ dat_production <- dat %>%
                                  wind_electricity,
                                  renewables_electricity,
                                  other_renewable_electricity))
-    
-dat_production %>%
-  group_by(as.factor(continent)) %>%
-   summarize(Moyenne = mean(coal_production,na.rm = TRUE))
+ 
 
-summarise(dat_production)
+dat_production<-dat_production[!is.na(dat_production$continent),]
+
+tab1 <- dat_production %>%
+  group_by(as.factor(continent)) %>%
+   summarize(
+       n=n(),
+       Moyenne = mean(energy_per_capita,na.rm = TRUE),
+       SD = sd(energy_per_capita,na.rm = TRUE),
+       Min = min(energy_per_capita,na.rm = TRUE),
+       Max = max(energy_per_capita,na.rm = TRUE)
+       )
+
+dat <- dat %>%
+  mutate(quinqua = as.numeric(year) - as.numeric(year) %% 50)
+
+tab2 <- dat %>%
+    group_by(as.factor(quinqua)) %>% 
+     summarize(
+       n=n(),
+       Moyenne = mean(Life.expectancy,na.rm = TRUE),
+       SD = sd(Life.expectancy,na.rm = TRUE),
+       Min = min(Life.expectancy,na.rm = TRUE),
+       Max = max(Life.expectancy,na.rm = TRUE)
+       )
+
 
 
 ```
 
+## Statistiques descriptives
+
+```{r}
+
+# Consommation d'énergie par capita, regroupé par continent
+tab1
+
+tab2
+
+```
+
 ```{r map}
+
 library(leaflet)
 leaflet() %>%
     setView(lng=150,
