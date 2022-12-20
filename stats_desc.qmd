@@ -1,10 +1,10 @@
 ---
 title: "Statistiques descriptives"
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ## **Vous trouverez ici une page complète de statistiques descriptive pour les données d'énergie et de d'espérance de vie.**
-
-# Statistiques descriptives
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 library(tidyverse)
@@ -21,6 +21,7 @@ library(rgdal)
 library(highcharter)
 library(ggthemes)
 
+
 currentDate <- Sys.Date()
 csvFileName2finale <- paste("data/processed/cbin_dat.csv",sep = "")
 tab1 <- read.csv("data\\tab1.csv")
@@ -28,26 +29,56 @@ tab2 <- read.csv("data\\tab2.csv")
 tab3 <- read.csv("data\\tab3.csv")
 dat2 <- read.csv(csvFileName2finale)
 
-getwd()
+
+
 ```
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+### 1. **Dans ce premier tableau statistique, il est possible de voir la distribution de l'énergie per capita dans le monde.**
+
+```{r premier tableau}
 
 # Consommation d'énergie par capita, regroupé par continent au 21e siècle.
 
 tab1
 
+
+```
+
+### 2. Dans ce deuxième tableau, il est possible de voir comment l'espérance de vie varie au fil du temps
+
+```{r}
+
 # Statistiques descriptive sur la durée de vie par quinquagénaire
 
 tab2
+
+```
+
+### 3. Dans le graphique ci-dessous, la dispersion des énergies fossiles les plus importantes est représentée.
+
+```{r}
 
 # Statistiques intertemporelles sur la production des énergies les plus importante
 
 tab3 
 
+```
+
+### 4. Finalement, dans ce dernier tableau statistique, plusieurs statistiques sur l'énergie sont représentées par contenant
+
+```{r}
+
 # Statistiques descriptives par continant
 
-df1 <- data.frame(grpBy=dat2$continent, dat2$gdp, dat2$electricity_demand, dat2$electricity_generation, dat2$gas_prod_change_pct, dat2$Life.expectancy) %>% split(.$grpBy) %>% map(summary)
+df1 <-
+    data.frame(
+        grpBy = dat2$continent,
+        dat2$gdp,
+        dat2$electricity_demand,
+        dat2$electricity_generation,
+        dat2$gas_prod_change_pct,
+        dat2$Life.expectancy
+    ) %>% split(.$grpBy) %>% map(summary)
 
 df1
 
