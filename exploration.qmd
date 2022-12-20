@@ -371,6 +371,19 @@ ggplot(data=dat,
 ```
 
 
+```{r message=FALSE, warning=FALSE, include=FALSE, include=FALSE}
+dat %>% 
+    ggplot(aes(renewables_share_energy))+
+    geom_density(aes(fill=as.factor(continent)), alpha = 0.4)+
+    theme_classic()+
+    labs(title = "proportion de densité d'énergie renouvelable par continant",
+         x="Part de la consommation d'énergie qui est renouvelable",
+         y="Densité",
+         fill = "Continant")
+    
+
+```
+
 ```{r Exportation des données ,message=FALSE, warning=FALSE, include=FALSE}
 csvFileName2finale <- paste("data/processed/cbin_dat.csv",sep = "")
 

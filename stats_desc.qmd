@@ -8,17 +8,8 @@ editor_options:
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 library(tidyverse)
-library(countrycode)
-library(gsheet)
-library(psych)
 library(lubridate)
-library(doBy)
 library(purrr)
-library(leaflet)
-library(sf)
-library(leafdown)
-library(rgdal)
-library(highcharter)
 library(ggthemes)
 
 
@@ -28,6 +19,7 @@ tab1 <- read.csv("data\\tab1.csv")
 tab2 <- read.csv("data\\tab2.csv")
 tab3 <- read.csv("data\\tab3.csv")
 dat2 <- read.csv(csvFileName2finale)
+
 
 
 
@@ -81,5 +73,16 @@ df1 <-
     ) %>% split(.$grpBy) %>% map(summary)
 
 df1
+
+```
+
+### 5. Finalement, la différencre entre aujourd'hui et la première année dans les données est:
+```{r}
+
+year <- as.Date(as.character(1800), format = "%Y")
+
+today <- Sys.Date()
+
+today - year
 
 ```
