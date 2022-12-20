@@ -16,7 +16,7 @@ author:
     affiliation-url: https://FAS1002.github.io/A22
     # changer pour votre propre orcid id
     # https://orcid.org/ pour vous inscrire.
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-5510-6473
 
 # TRUE == Générer une citation pour cette page précise. Pour enlever, mettre false.
 citation: true
@@ -29,10 +29,24 @@ Il est maintenant le temps de décrire votre projet avant de passer au document 
 
 Je vous conseille d'écrire cette partie en dernier, une fois que vous aurez déjà vos résultats et figures afin d'éviter de réécrire cette page plusieurs fois.
 
-::: callout-important
-N'oubliez pas d'inclure vos références sur chacune des pages!
-:::
-
-Par exemple:
-
-> Les données proviennent entre autres de @owidenergy.
+> Les données proviennent entre autres de @owidenergy et de @noauthor_systema_2022
+>
+> les packages utilisé pour le travail sont:
+>
+> -   @arel-bundock_countrycode_2022
+>
+> -   @arnold_jrnoldggthemes_2022
+>
+> -   @conway_gsheet_2022
+>
+> -   @kunst_highcharter_2022
+>
+> -   @noauthor_crandoby_2022
+>
+> -   @noauthor_cranpsych_2022
+>
+> -   @noauthor_cranrgdal_2022
+>
+> -   @noauthor_simple_2022
+>
+> -   @noauthor_tidyverseorg_2022

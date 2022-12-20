@@ -25,7 +25,7 @@ dat2 <- read.csv(csvFileName2finale)
 
 ```
 
-### 1. **Dans ce premier tableau statistique, il est possible de voir la distribution de l'énergie per capita dans le monde.**
+### 1. Dans ce premier tableau statistique, il est possible de voir la distribution de l'énergie per capita dans le monde.
 
 ```{r premier tableau}
 
