@@ -25,106 +25,87 @@ citation: true
 bibliography: references.bib
 ---
 
-## Un peu d'interactivité pour le plaisir!
-
 ```{r}
 library(tidyverse)
 library(countrycode)
-dat_en <- read.csv("data/raw/energie_2022-12-06_.csv")
-
+library(gsheet)
 
 ```
+
+# Téléchargement des données
 
 ```{r}
 
-#verification du nombre du nombre de donnée par pays, dans la base de donnée.
-unique(dat_en$country)
+# Téléchargement de énergie
+currentDate <- Sys.Date()
+csvFileName <- paste("data/raw/energie",currentDate,".csv",sep = "")
+download.file("https://nyc3.digitaloceanspaces.com/owid-public/data/energy/owid-energy-data.csv",destfile = csvFileName)
 
-dat_en$continent <- countrycode(sourcevar = dat_en[, "iso_code"],
-                            origin = "iso3c",
-                            destination = "continent")
+# Téléchargement de gapminder
+csvFileName2 <- paste("data/raw/gapminder",currentDate,".csv",sep = "")
 
-dat_en$continent <- ifelse(dat_en$iso_code=='ATA',"Antartica" ,dat_en$continent)
-dat_en$continent <- ifelse(dat_en$iso_code=='ANT',"Americas" ,dat_en$continent)
+url_gap <- "https://docs.google.com/spreadsheets/d/1RheSon1-q4vFc3AGyupVPH6ptEByE-VtnjOCselU0PE/edit#gid=176703676"
 
-dat_en$continent <- ifelse(dat_en$country=='Asia',"Asia" ,dat_en$continent)
-dat_en$continent <- ifelse(str_detect(dat_en$country,"Africa"),"Africa" ,dat_en$continent)
-dat_en$continent <- ifelse(dat_en$country=='Europe',"Europe" ,dat_en$continent)
+dat_gap <- read.csv(text=gsheet2text(url_gap, format='csv'), stringsAsFactors=FALSE)
 
-table(dat_en$continent, useNA = "always")
+write.csv(dat_gap,csvFileName2) 
+
 
 ```
 
+# Données 
 
+```{r}
 
+#Données sur l'energie
+thedate <- Sys.Date()
+thefileEN <- paste0("data/raw/energie",thedate,".csv")
+dat_energie <- read.csv(thefileEN)
 
 
 
+```
 
+# Nettoyages des données
 
+```{r}
 
+# Combinaisons des deux bases de données 
 
+colnames(dat_gap)[2] <- "country"
 
+dat <- left_join(dat_gap,dat_energie)
 
+# Transformations des données concernant les continants.
+dat$continent <- countrycode(sourcevar = dat[, "iso_code"],
+                            origin = "iso3c",
+                            destination = "continent")
 
+dat$continent <- ifelse(dat$iso_code=='ATA',"Antartica" ,dat$continent)
+dat$continent <- ifelse(dat$iso_code=='ANT',"Americas" ,dat$continent)
 
+dat$continent <- ifelse(dat$country=='Asia',"Asia" ,dat$continent)
+dat$continent <- ifelse(str_detect(dat$country,"Africa"),"Africa" ,dat$continent)
+dat$continent <- ifelse(dat$country=='Europe',"Europe" ,dat$continent)
 
+table(dat$continent, useNA = "always")
+unique(dat$continent)
 
+# Création des variables catégorielle pour les contients 
+dat$continentCat <- ifelse(dat$continent=="Africa",1,dat$continent)
 
+dat$continentCat <- ifelse(dat$continent=="Americas",2,dat$continent)
 
+dat$continentCat <- ifelse(dat$continent=="Antartica",3,dat$continent)
 
+dat$continentCat <- ifelse(dat$continent=="Asia",4,dat$continent)
 
+dat$continentCat <- ifelse(dat$continent=="Europe",5,dat$continent)
 
+dat$continentCat <- ifelse(dat$continent=="Oceania",6,dat$continent)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
 
 ```{r map}
 library(leaflet)
