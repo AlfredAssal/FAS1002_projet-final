@@ -27,10 +27,10 @@ website:
       - href: index.qmd
         text: Page d'accueil
       - intro.qmd
-      - href: import.qmd
-        text: Titre à changer
       - exploration.qmd
       - stats_desc.qmd
+      - href: import.qmd
+        text: Références      
     right:
       - href: a-propos.qmd
         text: Page à droite 

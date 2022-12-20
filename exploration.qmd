@@ -21,6 +21,7 @@ editor_options:
   chunk_output_type: inline
 ---
 
+
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 library(tidyverse)
 library(countrycode)

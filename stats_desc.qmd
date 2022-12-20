@@ -2,14 +2,20 @@
 title: "Statistiques descriptives"
 editor_options: 
   chunk_output_type: inline
+
+citation: true
+bibliography: references.bib
 ---
+
+::: callout-note
+Dans cette section j'utilise principalement les librairies de [@noauthor_tidyverseorg_2022], [@lubridat2022] et de [@arnold_jrnoldggthemes_2022]
+:::
 
 ## **Vous trouverez ici une page complète de statistiques descriptive pour les données d'énergie et de d'espérance de vie.**
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 library(tidyverse)
 library(lubridate)
-library(purrr)
 library(ggthemes)
 
 
@@ -77,6 +83,7 @@ df1
 ```
 
 ### 5. Finalement, la différencre entre aujourd'hui et la première année dans les données est:
+
 ```{r}
 
 year <- as.Date(as.character(1800), format = "%Y")
