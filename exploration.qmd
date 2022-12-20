@@ -29,6 +29,7 @@ bibliography: references.bib
 library(tidyverse)
 library(countrycode)
 library(gsheet)
+library(psych)
 
 ```
 
@@ -70,39 +71,65 @@ dat_energie <- read.csv(thefileEN)
 
 ```{r}
 
-# Combinaisons des deux bases de données 
+
+# Combinaisons des deux bases de données
 
 colnames(dat_gap)[2] <- "country"
+colnames(dat_gap)[3] <- "year"
 
-dat <- left_join(dat_gap,dat_energie)
+dat <- left_join(dat_gap, dat_energie)
 
 # Transformations des données concernant les continants.
-dat$continent <- countrycode(sourcevar = dat[, "iso_code"],
-                            origin = "iso3c",
-                            destination = "continent")
+dat$continent <- countrycode(sourcevar = dat[, "geo"],
+                             origin = "iso3c",
+                             destination = "continent")
 
-dat$continent <- ifelse(dat$iso_code=='ATA',"Antartica" ,dat$continent)
-dat$continent <- ifelse(dat$iso_code=='ANT',"Americas" ,dat$continent)
+dat$continent <-
+    ifelse(dat$iso_code == 'ATA', "Antartica" , dat$continent)
+dat$continent <-
+    ifelse(dat$iso_code == 'ANT', "Americas" , dat$continent)
 
-dat$continent <- ifelse(dat$country=='Asia',"Asia" ,dat$continent)
-dat$continent <- ifelse(str_detect(dat$country,"Africa"),"Africa" ,dat$continent)
-dat$continent <- ifelse(dat$country=='Europe',"Europe" ,dat$continent)
+dat$continent <- ifelse(dat$country == 'Asia', "Asia" , dat$continent)
+dat$continent <-
+    ifelse(str_detect(dat$country, "Africa"), "Africa" , dat$continent)
+dat$continent <-
+    ifelse(dat$country == 'Europe', "Europe" , dat$continent)
 
 table(dat$continent, useNA = "always")
 unique(dat$continent)
 
-# Création des variables catégorielle pour les contients 
-dat$continentCat <- ifelse(dat$continent=="Africa",1,dat$continent)
+# Création des variables catégorielle pour les contients
+dat$continentCat <- ifelse(dat$continent == "Africa", 1, dat$continent)
 
-dat$continentCat <- ifelse(dat$continent=="Americas",2,dat$continent)
+dat$continentCat <-
+    ifelse(dat$continent == "Americas", 2, dat$continentCat)
 
-dat$continentCat <- ifelse(dat$continent=="Antartica",3,dat$continent)
+dat$continentCat <-
+    ifelse(dat$continent == "Antartica", 3, dat$continentCat)
 
-dat$continentCat <- ifelse(dat$continent=="Asia",4,dat$continent)
+dat$continentCat <- ifelse(dat$continent == "Asia", 4, dat$continentCat)
 
-dat$continentCat <- ifelse(dat$continent=="Europe",5,dat$continent)
+dat$continentCat <- ifelse(dat$continent == "Europe", 5, dat$continentCat)
 
-dat$continentCat <- ifelse(dat$continent=="Oceania",6,dat$continent)
+dat$continentCat <- ifelse(dat$continent == "Oceania", 6, dat$continentCat)
+
+dat_production <- dat %>%
+    subset(year>=2000,select = c(country,
+                                 continent,
+                                 coal_production,
+                                 gas_production,
+                                 oil_production,
+                                 hydro_electricity,
+                                 solar_electricity,
+                                 wind_electricity,
+                                 renewables_electricity,
+                                 other_renewable_electricity))
+    
+dat_production %>%
+  group_by(as.factor(continent)) %>%
+   summarize(Moyenne = mean(coal_production,na.rm = TRUE))
+
+summarise(dat_production)
 
 
 ```
@@ -123,6 +150,7 @@ leaflet() %>%
 ## Peut-être que ça vous inspirera!
 
 ```{r plotly, message=FALSE, warning=FALSE}
+
 library(plotly)
 library(gapminder)
 df <- gapminder
