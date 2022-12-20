@@ -32,8 +32,12 @@ library(gsheet)
 library(psych)
 library(lubridate)
 library(doBy)
-
 library(purrr)
+library(leaflet)
+library(sf)
+library(leafdown)
+library(rgdal)
+library(highcharter)
 
 ```
 
@@ -80,6 +84,8 @@ dat_energie <- read.csv(thefileEN)
 
 colnames(dat_gap)[2] <- "country"
 colnames(dat_gap)[3] <- "year"
+
+
 
 dat <- left_join(dat_gap, dat_energie)
 
@@ -168,6 +174,7 @@ tab3 <- describe(dat_growth, fast = T)
 
 df <- data.frame(grpBy=dat$continent, dat$gdp, dat$electricity_demand, dat$electricity_generation, dat$gas_prod_change_pct, dat$Life.expectancy) %>% split(.$grpBy) %>% map(summary)
 
+
 ```
 
 ## Statistiques descriptives
@@ -194,11 +201,50 @@ df
 
 ```{r}
 
-modele1 <- lm(data = dat, gdp ~ oil_production + gas_production + coal_production + nuclear_electricity + hydro_electricity+other_renewable_electricity+solar_electricity+wind_electricity)
+model1 <- lm(data = dat, gdp ~ oil_production + gas_production + coal_production + nuclear_electricity + hydro_electricity+other_renewable_electricity+solar_electricity+wind_electricity)
 
 options(scipen = 999)
-summary(modele1)
+summary(model1)
 
+
+# Pour avoir un graphique plus précis, je vais faire varier la prediction de mon modèle dans une base de donnée fictive. Me permettant ainsi d'avoir un graphique plus juste. 
+pred_mod1 <- expand.grid(
+    oil_production = (seq(
+        from = min(dat$oil_production, na.rm = T),
+        to = max(dat$oil_production, na.rm=T),
+        length.out=999
+    )),
+    gas_production=mean(dat$gas_production,na.rm=T),
+    coal_production=mean(dat$coal_production,na.rm=T),
+    nuclear_electricity=mean(dat$nuclear_electricity,na.rm=T),
+    hydro_electricity=mean(dat$hydro_electricity,na.rm=T),
+    other_renewable_electricity=mean(dat$other_renewable_electricity,na.rm=T),
+    solar_electricity=mean(dat$solar_electricity,na.rm=T),
+    wind_electricity=mean(dat$wind_electricity,na.rm=T)
+)
+
+prediction <- predict(object = model1,
+                      newdata = pred_mod1,
+                      interval = "predict") %>%
+  as.data.frame()
+
+pred_dat <- cbind(prediction,pred_mod1)
+
+# Gaphique du modele de regression 1 
+ggplot(data=dat, 
+       aes(x=oil_production, y=gdp))+
+    geom_line(data = pred_dat,
+              aes(x = oil_production, y = fit),
+              size = 1)+
+      geom_ribbon(data = pred_dat,
+              aes(
+                x = oil_production,
+                y = fit,
+                ymin = lwr,
+                ymax = upr
+              ),
+              alpha=.2)
+    
 ```
 
 Dans ma première analyse, je voulais voir l'effet statistique de la production de pétrole sur le PIB. L'hypothèse était bien sûr que le la production de pétrole affecte énormément le PIB. Dans le modèle de régression ci-dessous j'ai utilisé un modèle de régression multiple avec comme régresseur principal la production de pétrole. J'ai ensuite contrôlé pour toutes les autres variables de production d'énergie. Le choix des variables de contrôle vient principalement du fait que je ne voulais pas surestimer l'effet de la production de pétrole en faisant passer l'effet des variables omises dans l'effet de la production de pétrole.
@@ -213,9 +259,171 @@ Enfin, ce modèle est seulement une corrélation, il n\'est d\'en aucun cas un m
 
 Bien sûr, en réalité la production de pétrole affecte positivement le PIB et la tendance du modèle est probablement juste, cependant il n'est rien possible de dire d'autre.
 
+## Analyse 2 
+
+```{r}
+
+model2 <- lm(greenhouse_gas_emissions ~ net_elec_imports + electricity_demand,data=dat)
+
+summary(model2)
+
+
+pred_mod2 <- expand.grid(
+    net_elec_imports = (seq(
+        from = min(dat$net_elec_imports, na.rm = T),
+        to = max(dat$net_elec_imports, na.rm=T),
+        length.out=999
+    )),
+    electricity_demand=mean(dat$electricity_demand,na.rm=T))
+
+prediction2 <- predict(object = model2,
+                      newdata = pred_mod2,
+                      interval = "predict") %>%
+  as.data.frame()
+
+pred_dat2 <- cbind(prediction2,pred_mod2)
+
+ggplot(data=dat, 
+       aes(x=net_elec_imports, y=greenhouse_gas_emissions))+
+    geom_line(data = pred_dat2,
+              aes(x = net_elec_imports, y = fit),
+              size = 1)+
+      geom_ribbon(data = pred_dat2,
+              aes(
+                x = net_elec_imports,
+                y = fit,
+                ymin = lwr,
+                ymax = upr
+              ),
+              alpha=.2)
+
+```
+Dans cette deuxième analyse, je trouvais intéressant de voir comment les importations d’énergie pouvaient affecter la quantité de gaz è effet de serre. La méthode utiliser pour voir cet effet statistique est en utilisant un modèle de régression multiple, tout comme dans la première analyse. Seulement, cette fois-ci, je contrôle pour une seule variable, la demande d’électricité. J’ai choisi de prendre uniquement la demande d’électricité comme variable de contrôle. 
+
+Dans le ce modèle, il est possible de voir que l’import d’électricité a une corrélation négative avec les gaz à effet de serre. Autrement dit, lorsque les imports augmentent, les gaz à effet de serre diminuent, ce qui est légèrement contre-intuitif. Pour être plus précis, le modèle précise qu’une augmentation d’un térawattheure d’import net fera diminuer 0.36 million de tonnes de CO2. Dans ce cas, le R2 est de 0.964, ainsi la proportion de la variation des gaz à effet de serre expliqué par la variation du modèle est de 96%. De plus, les valeurs p nous indiquent que toutes les variables sont statistiquement significatives. 
+
+Enfin, tout comme le dernier modèle, ce modèle n’est qu’une corrélation statistique. Il est impossible de discuter de causalité dans un cas comme celui-ci. Il y a énormément de variables omises et probablement des erreurs de mesure. Par exemple, je ne suis pas certain que les coûts environnementaux des transports soient comptabilisés dans les données. Aussi, il manque des variables comme le degré d’ouverture au commerce de certains pays, les droits de douane, etc. 
+
 ```{r map}
 
-library(leaflet)
+pal <- colorNumeric(
+  palette = "YlGnBu",
+  domain = dat$oil_production
+)
+
+leaflet(dat) %>% 
+    addTiles()+
+    fillColor = ~pal(oil_production)
+
+
+    leaflet(dat) %>%
+  addPolygons(stroke = FALSE, smoothFactor = 0.2, fillOpacity = 1)
+
+binpal <- colorBin("Blues", dat$population, 6, pretty = FALSE)
+
+pal <- colorBin("YlOrRd", domain = dat$oil_production)
+
+
+
+
+my_map <- leaflet(dat) %>% 
+    addTiles()
+
+
+
+dat_2021 <- dat %>% 
+    subset(year==2021)
+
+leaflet() %>% 
+    addTiles()
+    
+
+
+
+map <- my_leafdown$draw_leafdown(
+  fillColor = ~ colorNumeric("Greens", oil_production)(oil_production)
+) 
+
+
+
+
+colnames(dat_2021)[1] <- "iso-a3"
+str_to_upper(dat_2021$`iso-a3`)
+
+
+hcmap(
+  map = "custom/world-highres3", # high resolution world map
+  data = dat_2021, # name of dataset
+  joinBy = "iso-a3",
+  value = "oil_production",
+  showInLegend = FALSE, # hide legend
+  nullColor = "#DADADA",
+  download_map_data = TRUE
+) %>%
+  hc_mapNavigation(enabled = T) %>%
+  hc_legend("none") %>%
+  hc_title(text = "World map") # title
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+leaflet(data = dat_2021) %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addPolygons(
+              fillColor = ~pal(population), 
+              fillOpacity = 0.8, 
+              color = "#BDBDC3", 
+              weight = 1)
+
+pal <- colorQuantile("YlGn", NULL, n = 5)
+
+dat_2021 <- st_as_sf(dat_2021, wkt = "country") 
+
+ dat_2021 %>%
+      leaflet() %>%
+      addTiles() %>%
+      setView( lat=10, lng=0 , zoom=2) %>% #sets default map pan
+      addPolygons(
+                  data = dat_2021,
+                  fillColor = ~pal(oil_production), 
+                  stroke=TRUE, 
+                  fillOpacity = 0.9, 
+                  color="white", 
+                  weight=0.7,
+                  label = mytext,
+                  labelOptions = label,
+                  highlightOptions = highlight,
+                  group = "World Happiness Index")
+ 
+ leaflet(dat_2021) %>%
+  addTiles() %>%
+  addPolylines(stroke = FALSE, smoothFactor = 0.3, fillOpacity = 1,
+               fillColor = factor('oil_production'))
+
+
 leaflet() %>%
     setView(lng=150,
             lat=-30,
