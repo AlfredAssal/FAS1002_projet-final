@@ -40,8 +40,8 @@ website:
       [Propulsé par des logiciels libres 💖](https://github.com/FAS1002/A22){.nav-link}
     center:
     # Changer VOTRE NOM pour ce que vous voulez
-      - text: "VOTRE NOM"
-        href: mailto:VOTRECOURRIEL@example.com
+      - text: "Alfred Assal"
+        href: mailto:alfred.assal@umontreal.ca
     right:
       - icon: github
         href: https://github.com/FAS1002/

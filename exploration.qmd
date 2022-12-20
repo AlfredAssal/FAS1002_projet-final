@@ -31,6 +31,9 @@ library(countrycode)
 library(gsheet)
 library(psych)
 library(lubridate)
+library(doBy)
+
+library(purrr)
 
 ```
 
@@ -154,7 +157,16 @@ tab2 <- dat %>%
        Max = max(Life.expectancy,na.rm = TRUE)
        )
 
+dat_growth <- dat %>% 
+    select(c(gdp,
+             gas_production,
+             coal_production,
+             oil_production,
+             ))
 
+tab3 <- describe(dat_growth, fast = T)
+
+df <- data.frame(grpBy=dat$continent, dat$gdp, dat$electricity_demand, dat$electricity_generation, dat$gas_prod_change_pct, dat$Life.expectancy) %>% split(.$grpBy) %>% map(summary)
 
 ```
 
@@ -162,12 +174,44 @@ tab2 <- dat %>%
 
 ```{r}
 
-# Consommation d'énergie par capita, regroupé par continent
+# Consommation d'énergie par capita, regroupé par continent au 21e siècle.
 tab1
 
+# Statistiques descriptive sur la durée de vie par quinquagénaire
 tab2
 
+# Statistiques intertemporelles sur la production des énergies les plus importante
+
+tab3 
+
+# Statistiques descriptives par continant
+df
 ```
+
+# Analyse
+
+## Analyse 1
+
+```{r}
+
+modele1 <- lm(data = dat, gdp ~ oil_production + gas_production + coal_production + nuclear_electricity + hydro_electricity+other_renewable_electricity+solar_electricity+wind_electricity)
+
+options(scipen = 999)
+summary(modele1)
+
+```
+
+Dans ma première analyse, je voulais voir l'effet statistique de la production de pétrole sur le PIB. L'hypothèse était bien sûr que le la production de pétrole affecte énormément le PIB. Dans le modèle de régression ci-dessous j'ai utilisé un modèle de régression multiple avec comme régresseur principal la production de pétrole. J'ai ensuite contrôlé pour toutes les autres variables de production d'énergie. Le choix des variables de contrôle vient principalement du fait que je ne voulais pas surestimer l'effet de la production de pétrole en faisant passer l'effet des variables omises dans l'effet de la production de pétrole.
+
+Comme il est possible de le voir dans le modèle de régression, une augmentation de la production de pétrole d'un térawatt cause une augmentation statistique du PIB de 106 878 253 323. Bien sûr, ce chiffre est à prendre à la légère, j\'expliquerai plus tard les biais potentiels. Ensuite, le R^2^ de 0.9393 signifie que 93% de la proportion du PIB est expliqué par le modèle de régression. De plus, les valeurs sont toutes significatives au seuil de 2% d\'intervalle de confiance.
+
+Comme mentionné plus haut, il y a plusieurs biais potentiels dans ce modèle, j\'en citerais seulement quelques-uns, puisque la liste peut être longue. Le premier type de biais est le biais par variables omises. Pour essayer d\'expliquer l\'effet de la production de pétrole sur le PIB, il me faudrait plusieurs autres variables, par exemple une variable sur la démocratie pourrait être utile dans le modèle. Aussi, j\'utilise des données en panel entre les années 1800 et 2050, ainsi pour avoir un modèle plus précis, une bonne idée serait de contrôler pour les effets fixes. De cette façon, j\'atténue l\'effet du biais temporel.
+
+Étonnamment, l'énergie solaire et l'énergie éolienne affectent beaucoup plus le PIB que je pensais. Cependant, je pense qu'il y a aussi un léger biais dans ce cas, puisque les pays ayant le plus d'installation éoliens sont des pays occidentaux principalement développés. Alors, puisque le modèle voit seulement l'effet sur les pays plus riches, il sur estime l'effet éolien et l'effet solaire.
+
+Enfin, ce modèle est seulement une corrélation, il n\'est d\'en aucun cas un modèle causal, il est seulement statistiquement significatif. Il n\'est pas possible de dire avec un modèle aussi simple qu\'une augmentation de la production de pétrole d\'un térawatt cause une augmentation du PIB de 106 878 253 323\$.
+
+Bien sûr, en réalité la production de pétrole affecte positivement le PIB et la tendance du modèle est probablement juste, cependant il n'est rien possible de dire d'autre.
 
 ```{r map}
 
