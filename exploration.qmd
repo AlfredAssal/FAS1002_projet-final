@@ -33,12 +33,18 @@ library(highcharter)
 library(ggthemes)
 library(stringr)
 
+# Fonction qui extrait la date.
+DATEext <- function(x) {
+    as.Date(
+    str_extract(x, "\\d{4}-\\d{2}-\\d{2}"), format="%Y-%m-%d")
+}
+
+# Automatisation du téléchargement d'energie
 name <- list.files(path="data/raw/", pattern=NULL, all.files=FALSE,
     full.names=FALSE)
 
 name2 <- str_view(name,"energie") #Crée une fonction qui extract la date
-date_fichierEN <- as.Date(
-    str_extract(name2, "\\d{4}-\\d{2}-\\d{2}"), format="%Y-%m-%d")
+date_fichierEN <- DATEext(name2)
 
 mydir <- "data/raw/"
 files_to_delete <- dir(path=mydir ,pattern="energie")
@@ -54,25 +60,27 @@ ifelse(
     date_fichierEN
 )
 
+# Telechargement des données Gapminder
 
-```
-
-```{r Téléchargement des données, message=FALSE, warning=FALSE, include=FALSE}
-
-
-
-
-# Téléchargement de gapminder
 csvFileName2 <- paste("data/raw/gapminder",currentDate,".csv",sep = "")
 
 url_gap <- "https://docs.google.com/spreadsheets/d/1RheSon1-q4vFc3AGyupVPH6ptEByE-VtnjOCselU0PE/edit#gid=176703676"
 
 dat_gap <- read.csv(text=gsheet2text(url_gap, format='csv'), stringsAsFactors=FALSE)
 
-write.csv(dat_gap,csvFileName2) 
+namegap <- str_view(name,"gapminder")
+date_fichierGAP <- DATEext(namegap)
+files_to_deleteGAP <- dir(path=mydir ,pattern="gapminder")
 
+ifelse(
+    month(date_fichierGAP) > month(Sys.Date()),
+    file.remove(file.path(mydir, files_to_deleteGAP)) 
+        & write.csv(dat_gap,csvFileName2),
+    date_fichierGAP
+)
 
 ```
+
 
 ```{r Donnée, message=FALSE, warning=FALSE, include=FALSE, include=FALSE}
 
