@@ -2,11 +2,11 @@
 title: "FAS1002_projet-final"
 ---
 
-**Le projet ci-dessous est une représentation intertemporelle de la consommation d\'énergie et de l\'espérance de vie de l\'humanité depuis l\'an 1800.**
+**Le projet ci-dessous est une représentation intertemporelle de la consommation d'énergie et de l'espérance de vie de l'humanité depuis l'an 1800.**
 
 ## Graphique d'introduction
 
-Comme il est possible de le voir avec le graphique ci-dessous, les continents qui utilisent le plus des énergies renouvelables sont principalement les continents se trouvant dans des zones plutôt développées. Il est possible de voir que l\'Afrique et l\'Asie ont encore du chemin à faire en termes d\'énergie renouvelable. Dans les prochaines pages, on abordera la question d\'énergie polluante et de l\'espérance de vie.
+Comme il est possible de le voir avec le graphique ci-dessous, les continents qui utilisent le plus des énergies renouvelables sont principalement les continents se trouvant dans des zones plutôt développées. Il est possible de voir que l'Afrique et l'Asie ont encore du chemin à faire en termes d'énergie renouvelable. Dans les prochaines pages, on abordera la question d'énergie polluante et de l'espérance de vie.
 
 ![](Image_dens.png)**\
 **

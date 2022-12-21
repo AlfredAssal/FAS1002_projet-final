@@ -31,15 +31,36 @@ library(sf)
 library(rgdal)
 library(highcharter)
 library(ggthemes)
+library(stringr)
+
+name <- list.files(path="data/raw/", pattern=NULL, all.files=FALSE,
+    full.names=FALSE)
+
+name2 <- str_view(name,"energie") #Crée une fonction qui extract la date
+date_fichierEN <- as.Date(
+    str_extract(name2, "\\d{4}-\\d{2}-\\d{2}"), format="%Y-%m-%d")
+
+mydir <- "data/raw/"
+files_to_delete <- dir(path=mydir ,pattern="energie")
+
+currentDate <- Sys.Date()
+csvFileName <- paste("data/raw/energie",currentDate,".csv",sep = "")
+
+# telechargement de Energie
+ifelse(
+    date_fichierEN < Sys.Date(),
+    file.remove(file.path(mydir, files_to_delete))
+        & download.file("https://nyc3.digitaloceanspaces.com/owid-public/data/energy/owid-energy-data.csv",destfile = csvFileName),
+    date_fichierEN
+)
+
 
 ```
 
 ```{r Téléchargement des données, message=FALSE, warning=FALSE, include=FALSE}
 
-# Téléchargement de énergie
-currentDate <- Sys.Date()
-csvFileName <- paste("data/raw/energie",currentDate,".csv",sep = "")
-download.file("https://nyc3.digitaloceanspaces.com/owid-public/data/energy/owid-energy-data.csv",destfile = csvFileName)
+
+
 
 # Téléchargement de gapminder
 csvFileName2 <- paste("data/raw/gapminder",currentDate,".csv",sep = "")
@@ -381,5 +402,5 @@ write.csv(dat,csvFileName2finale)
 ::: callout-note
 Les librairies utilisé ici sont [@tidyvers2022], [@arel-bundock_countrycode_2022],[@conway_gsheet_2022], [@noauthor_cranpsych_2022], [@lubridat2022],[@noauthor_simple_2022], [@cran/rgd2022], [@kunst_highcharter_2022] et [@arnold_jrnoldggthemes_2022]
 
-De plus, les données proviennes de @owidenergy et de @noauthor_systema_2022
+De plus, les données proviennes de [@owidenergy] et de [@noauthor_systema_2022]
 :::
